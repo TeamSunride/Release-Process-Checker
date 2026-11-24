@@ -1,203 +1,56 @@
 {
-  "title": "Electronics change check",
-  "version": "0.1.0",
-  "start": "change_type",
+  "title": "Telemetry Avionics Checker 1.0",
+  "version": "1.0",
+  "start": "schematic_edited",
   "actions": {
-    "define_scope": {
-      "title": "Record the change scope",
-      "detail": "Identify the affected assemblies, documents, hardware revisions and change request. Use your team's change-control process."
+    "no_changes": {
+      "title": "No Changes",
+      "detail": "You have not changed anything. Nothing is required."
     },
-    "update_schematic": {
-      "title": "Update the schematic",
-      "detail": "Make the required schematic changes, save them to the controlled project location and identify the resulting revision."
+    "changelog": {
+      "title": "Create Changelog",
+      "detail": "Update the changelog with a description of the changes made."
+    },
+    "inc_version": {
+      "title": "Increment Version",
+      "detail": "Increment the version number of the design."
     },
     "schematic_review": {
-      "title": "Review the schematic changes",
-      "detail": "Check affected nets, component values, symbols, references, power connections and design intent against your team's checklist."
+      "title": "Schematic Review",
+      "detail": "Have someone review the schematics before proceeding."
     },
-    "electrical_checks": {
-      "title": "Run applicable schematic checks",
-      "detail": "Run the required electrical/design-rule checks, assess warnings and errors, and record or resolve exceptions."
-    },
-    "update_pcb": {
-      "title": "Update the PCB layout",
-      "detail": "Apply required layout changes and confirm the board reflects the intended schematic and design constraints."
-    },
-    "pcb_review": {
-      "title": "Review PCB layout changes",
-      "detail": "Check placement, routing, clearances, constraints, stack-up and other applicable layout rules."
-    },
-    "pcb_checks": {
-      "title": "Run applicable PCB design-rule checks",
-      "detail": "Run the required DRC and resolve or formally disposition violations in accordance with your team's process."
-    },
-    "sync_schematic_pcb": {
-      "title": "Check schematic-to-PCB consistency",
-      "detail": "Confirm the schematic and PCB are synchronised and that component, net and footprint changes are accounted for."
-    },
-    "bom_check": {
-      "title": "Review the bill of materials",
-      "detail": "Check affected part numbers, values, lifecycle/availability and approved substitutions where applicable."
-    },
-    "manufacturing_outputs": {
-      "title": "Regenerate and verify manufacturing outputs",
-      "detail": "Regenerate the required fabrication, assembly, pick-and-place, drill and other outputs from the intended revision; verify the package."
-    },
-    "test_plan": {
-      "title": "Review verification and test impact",
-      "detail": "Determine which tests must be repeated, update test records or procedures if needed, and record results."
-    },
-    "documentation": {
-      "title": "Update associated engineering documentation",
-      "detail": "Update affected drawings, interface documents, release notes, test records and revision history as required."
-    },
-    "peer_review": {
-      "title": "Complete the required peer review",
-      "detail": "Obtain review of the exact changed revision and resolve comments according to your team's review process."
-    },
-    "approval": {
-      "title": "Obtain required engineering approval",
-      "detail": "Record approval from the authorised approver against the exact revision intended for release."
-    },
-    "release_package": {
-      "title": "Prepare the release package",
-      "detail": "Confirm required files, revision identifiers, evidence and release notes are complete and refer to the same intended version."
-    },
-    "release_record": {
-      "title": "Complete the controlled release record",
-      "detail": "Follow the organisation's release procedure and record the released revision, destination and release reference."
-    },
-    "recommended_change_note": {
-      "title": "Add a concise change summary",
-      "detail": "Summarise what changed, why it changed, affected items and any known limitations.",
-      "priority": "recommended"
+    "fix_issues": {
+      "title": "Fix Issues",
+      "detail": "Resolve the issues found during schematic review before proceeding."
     }
   },
   "nodes": {
-    "change_type": {
-      "question": "What does this change affect?",
-      "help": "Choose the closest match. This determines which checks are relevant.",
+    "schematic_edited": {
+      "question": "Have you edited the schematic?",
       "options": [
         {
-          "label": "Schematic only",
+          "label": "Yes",
           "value": "schematic"
         },
         {
-          "label": "PCB only",
-          "value": "pcb"
-        },
-        {
-          "label": "Schematic and PCB",
-          "value": "both"
-        },
-        {
-          "label": "Other deliverables",
-          "value": "other"
+          "label":"No",
+          "value":"no_schematic"
         }
       ],
       "next": {
         "schematic": {
-          "to": "schematic_edited",
-          "addActions": [
-            "define_scope",
-            "recommended_change_note"
-          ]
+          "to": "pcb_needs_edits",
+          "addActions": []
         },
-        "pcb": {
-          "to": "pcb_edited",
-          "addActions": [
-            "define_scope",
-            "recommended_change_note",
-            "sync_schematic_pcb"
-          ]
-        },
-        "both": {
-          "to": "schematic_edited",
-          "addActions": [
-            "define_scope",
-            "recommended_change_note"
-          ]
-        },
-        "other": {
-          "to": "other_docs",
-          "addActions": [
-            "define_scope",
-            "recommended_change_note"
-          ]
+        "no_schematic": {
+          "to": "pcb_been_edited",
+          "addActions": []
         }
       }
     },
-    "schematic_edited": {
-      "question": "Have you edited the schematic?",
-      "help": "Answer for the revision covered by this change.",
-      "options": [
-        {
-          "label": "Yes",
-          "value": "yes"
-        },
-        {
-          "label": "No",
-          "value": "no"
-        },
-        {
-          "label": "Not applicable",
-          "value": "na"
-        }
-      ],
-      "next": {
-        "yes": {
-          "to": "schematic_checks",
-          "addActions": [
-            "schematic_review"
-          ]
-        },
-        "no": {
-          "to": "schematic_checks",
-          "addActions": [
-            "update_schematic",
-            "schematic_review"
-          ]
-        },
-        "na": {
-          "to": "schematic_checks"
-        }
-      }
-    },
-    "schematic_checks": {
-      "question": "Have the required schematic checks been completed?",
-      "help": "Include electrical checks and review of any warnings or exceptions required by your process.",
-      "options": [
-        {
-          "label": "Yes",
-          "value": "yes"
-        },
-        {
-          "label": "No",
-          "value": "no"
-        },
-        {
-          "label": "Not applicable",
-          "value": "na"
-        }
-      ],
-      "next": {
-        "yes": {
-          "to": "pcb_route"
-        },
-        "no": {
-          "to": "pcb_route",
-          "addActions": [
-            "electrical_checks"
-          ]
-        },
-        "na": {
-          "to": "pcb_route"
-        }
-      }
-    },
-    "pcb_route": {
-      "question": "Does this change affect the PCB layout?",
-      "help": "Include changes that require board layout, footprint, routing or constraint updates.",
+    "pcb_needs_edits": {
+      "question": "Does the PCB need edits?",
+      "help": "E.g. a new component, changed footprint, or new routing. Schematic formatting changes wouldn't.",
       "options": [
         {
           "label": "Yes",
@@ -210,261 +63,151 @@
       ],
       "next": {
         "yes": {
-          "to": "pcb_edited",
-          "addActions": [
-            "sync_schematic_pcb"
-          ]
+          "to": "pcb_been_edited"
         },
         "no": {
-          "to": "bom_needed"
+          "to": "files_finished"
         }
       }
     },
-    "pcb_edited": {
+
+    "pcb_been_edited":{
       "question": "Have you edited the PCB?",
       "options": [
         {
           "label": "Yes",
-          "value": "yes"
+          "value": "pcb"
         },
         {
-          "label": "No",
-          "value": "no"
-        },
-        {
-          "label": "Not applicable",
-          "value": "na"
+          "label":"No",
+          "value":"no_pcb"
         }
       ],
       "next": {
-        "yes": {
-          "to": "pcb_checks",
-          "addActions": [
-            "pcb_review"
-          ]
-        },
-        "no": {
-          "to": "pcb_checks",
-          "addActions": [
-            "update_pcb",
-            "pcb_review"
-          ]
-        },
-        "na": {
-          "to": "pcb_checks"
-        }
-      }
-    },
-    "pcb_checks": {
-      "question": "Have the required PCB design checks been completed?",
-      "help": "Use your team's required DRC and layout review criteria.",
-      "options": [
-        {
-          "label": "Yes",
-          "value": "yes"
-        },
-        {
-          "label": "No",
-          "value": "no"
-        },
-        {
-          "label": "Not applicable",
-          "value": "na"
-        }
-      ],
-      "next": {
-        "yes": {
-          "to": "bom_needed"
-        },
-        "no": {
-          "to": "bom_needed",
-          "addActions": [
-            "pcb_checks"
-          ]
-        },
-        "na": {
-          "to": "bom_needed"
-        }
-      }
-    },
-    "bom_needed": {
-      "question": "Are the BOM or component details affected?",
-      "options": [
-        {
-          "label": "Yes",
-          "value": "yes"
-        },
-        {
-          "label": "No",
-          "value": "no"
-        }
-      ],
-      "next": {
-        "yes": {
-          "to": "manufacturing_needed",
-          "addActions": [
-            "bom_check"
-          ]
-        },
-        "no": {
-          "to": "manufacturing_needed"
-        }
-      }
-    },
-    "manufacturing_needed": {
-      "question": "Do manufacturing or assembly outputs need to change?",
-      "help": "For example, Gerbers, drill files, assembly drawings or pick-and-place data.",
-      "options": [
-        {
-          "label": "Yes",
-          "value": "yes"
-        },
-        {
-          "label": "No",
-          "value": "no"
-        }
-      ],
-      "next": {
-        "yes": {
-          "to": "test_impact",
-          "addActions": [
-            "manufacturing_outputs"
-          ]
-        },
-        "no": {
-          "to": "test_impact"
-        }
-      }
-    },
-    "test_impact": {
-      "question": "Does this change affect verification, testing or associated documentation?",
-      "options": [
-        {
-          "label": "Yes",
-          "value": "yes"
-        },
-        {
-          "label": "No",
-          "value": "no"
-        }
-      ],
-      "next": {
-        "yes": {
-          "to": "reviewed",
-          "addActions": [
-            "test_plan",
-            "documentation"
-          ]
-        },
-        "no": {
-          "to": "reviewed"
-        }
-      }
-    },
-    "other_docs": {
-      "question": "Have all affected engineering deliverables been updated?",
-      "help": "Consider drawings, BOMs, firmware, test procedures, reports and release notes as applicable.",
-      "options": [
-        {
-          "label": "Yes",
-          "value": "yes"
-        },
-        {
-          "label": "No",
-          "value": "no"
-        }
-      ],
-      "next": {
-        "yes": {
-          "to": "reviewed",
-          "addActions": [
-            "documentation"
-          ]
-        },
-        "no": {
-          "to": "reviewed",
-          "addActions": [
-            "documentation",
-            "define_scope"
-          ]
-        }
-      }
-    },
-    "reviewed": {
-      "question": "Has the changed revision been reviewed by the appropriate person?",
-      "options": [
-        {
-          "label": "Yes",
-          "value": "yes"
-        },
-        {
-          "label": "No",
-          "value": "no"
-        }
-      ],
-      "next": {
-        "yes": {
-          "to": "approved"
-        },
-        "no": {
-          "to": "approved",
-          "addActions": [
-            "peer_review"
-          ]
-        }
-      }
-    },
-    "approved": {
-      "question": "Has the required approval been recorded for this exact revision?",
-      "help": "If the revision changed after approval, check whether approval must be repeated.",
-      "options": [
-        {
-          "label": "Yes",
-          "value": "yes"
-        },
-        {
-          "label": "No",
-          "value": "no"
-        }
-      ],
-      "next": {
-        "yes": {
-          "to": "released"
-        },
-        "no": {
-          "to": "released",
-          "addActions": [
-            "approval"
-          ]
-        }
-      }
-    },
-    "released": {
-      "question": "Has the release been completed using the controlled release process?",
-      "options": [
-        {
-          "label": "Yes",
-          "value": "yes"
-        },
-        {
-          "label": "No",
-          "value": "no"
-        }
-      ],
-      "next": {
-        "yes": {
-          "to": "result",
+        "pcb": {
+          "to": "files_finished",
           "addActions": []
         },
-        "no": {
+        "no_pcb": {
           "to": "result",
-          "addActions": [
-            "release_package",
-            "release_record"
-          ]
+          "addActions": ["no_changes"]
         }
       }
     },
+
+    "files_finished":{
+      "question":"Have you finished modifying the files?",
+      "help":"This includes the schematic, PCB and BOM, all saved to server with no local edits.",
+      "options":[
+        {
+          "label":"Yes",
+          "value":"yes"
+        },
+        {
+          "label":"No",
+          "value":"no"
+        }
+      ],
+      "next":{
+        "yes":{
+          "to":"inc_version"
+        },
+        "no":{
+          "to":"result"
+        }
+      }
+    },
+
+    "inc_version":{
+      "question":"Increment the version number.",
+      "help":"This applies accross all subsheets. If this is the first release, use 1.0",
+      "options":[{"label":"Done","value":"done"}],
+      "next":{"done":{"to":"changelogs"}}
+    },
+
+    "changelogs":{
+      "question":"Changelog",
+      "help":"Update the changelog with a description of the changes made.",
+      "options":[{"label":"Done","value":"done"}],
+      "next":{"done":{"to":"drop_approval"}}
+    },
+
+    "drop_approval":{
+      "question":"Approval Removals",
+      "help":"Remove all approvals from modified documents. Unmodified documents do not need re-approving.",
+      "options":[{"label":"Done","value":"done"}],
+      "next":{"done":{"to":"review_process"}}
+    },
+   
+    "review_process":{
+      "question":"Has someone reviewed the schematics?",
+      "help":"The schematics cannot be reviewed by someone who was involved in the design process.",
+      "options":[
+        {
+          "label":"Yes",
+          "value":"yes"
+        },
+        {
+          "label":"No",
+          "value":"no"
+        }
+      ],
+      "next":{
+        "yes":{
+          "to":"issue_check"
+        },
+        "no":{
+          "to":"result",
+          "addActions": ["schematic_review"]
+        }
+      }
+    },
+
+    "issue_check":{
+      "question":"Did the schematic pass review without issues?",
+      "help":"If there were issues, they must be resolved before proceeding.",
+      "options":[
+        {
+          "label":"Yes",
+          "value":"yes"
+        },
+        {
+          "label":"No",
+          "value":"no"
+        }
+      ],
+      "next":{
+        "yes":{
+          "to":"add_approval"
+        },
+        "no":{
+          "to":"result",
+          "addActions": ["fix_issues"]
+        }
+      }
+    },
+
+    "add_approval":{
+      "question":"Add Approval",
+      "help":"Add the new approval to the modified documents.",
+      "options":[{"label":"Done","value":"done"}],
+      "next":{"done":{"to":"generate_exports"}}
+    },
+    
+    "generate_exports":{
+      "question":"Generate Exports",
+      "help":"Export the schematics, PCBs (manufacturing files), BOMs, ordering instructions and any other relevant information",
+      "options":[{"label":"Done","value":"done"}],
+      "next":{"done":{"to":"update_github"}}
+    },
+
+    "update_github":{
+      "question":"Update Github",
+      "help":"Add a new folder to the relevant release repository, with the exported files.",
+      "options":[{"label":"Done","value":"done"}],
+      "next":{"done":{"to":"result"}}
+    },
+    
     "result": {
       "type": "result",
       "title": "Your next actions",
