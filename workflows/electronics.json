@@ -22,6 +22,10 @@
     "finish_files":{
       "title": "Finish Files",
       "detail": "Please finish modifying the files before proceeding."
+    },
+    "export_nc_drill":{
+      "title": "Export NC Drill",
+      "detail": "Please export the NC drill files before proceeding."
     }
   },
   "nodes": {
@@ -224,7 +228,31 @@
       "question":"Generate Exports",
       "help":"Export the schematics, PCBs (manufacturing files), BOMs, ordering instructions and any other relevant information",
       "options":[{"label":"Done","value":"done"}],
-      "next":{"done":{"to":"update_github"}}
+      "next":{"done":{"to":"remember_nc_drill"}}
+    },
+
+    "remember_nc_drill":{
+      "question":"Did you remember to export the NC drill files?",
+      "help":"Everyone forgets these ok.",
+      "options":[
+        {
+          "label":"Yes",
+          "value":"yes"
+        },
+        {
+          "label":"No",
+          "value":"no"
+        }
+      ],
+      "next":{
+        "yes":{
+          "to":"update_github"
+        },
+        "no":{
+          "to":"result",
+          "addActions": ["export_nc_drill"]
+        }
+      }
     },
 
     "update_github":{
