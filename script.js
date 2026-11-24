@@ -156,7 +156,7 @@
     if (!actions.length) {
       const p = document.createElement('div');
       p.className = 'empty';
-      p.textContent = 'No actions were added by your answers. Confirm that this path is valid for your change and follow the applicable engineering release procedure.';
+      p.textContent = 'The project should now be released for this new version. Any edits restart this process.';
       list.appendChild(p);
     }
     $('progress').style.width = '100%';

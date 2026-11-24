@@ -5,15 +5,7 @@
   "actions": {
     "no_changes": {
       "title": "No Changes",
-      "detail": "You have not changed anything. Nothing is required."
-    },
-    "changelog": {
-      "title": "Create Changelog",
-      "detail": "Update the changelog with a description of the changes made."
-    },
-    "inc_version": {
-      "title": "Increment Version",
-      "detail": "Increment the version number of the design."
+      "detail": "You have not changed anything. The project cannot be released."
     },
     "schematic_review": {
       "title": "Schematic Review",
@@ -22,6 +14,14 @@
     "fix_issues": {
       "title": "Fix Issues",
       "detail": "Resolve the issues found during schematic review before proceeding."
+    },
+    "no_pcb":{
+      "title": "No PCB Changes",
+      "detail": "You have not made required edits to the PCB."
+    },
+    "finish_files":{
+      "title": "Finish Files",
+      "detail": "Please finish modifying the files before proceeding."
     }
   },
   "nodes": {
@@ -63,7 +63,7 @@
       ],
       "next": {
         "yes": {
-          "to": "pcb_been_edited"
+          "to": "pcb_been_edited_2"
         },
         "no": {
           "to": "files_finished"
@@ -95,6 +95,31 @@
       }
     },
 
+    "pcb_been_edited_2":{
+      "question": "Have you updated the PCB?",
+      "help":"Please make the required changes to the PCB",
+      "options": [
+        {
+          "label": "Yes",
+          "value": "pcb"
+        },
+        {
+          "label":"No",
+          "value":"no_pcb"
+        }
+      ],
+      "next": {
+        "pcb": {
+          "to": "files_finished",
+          "addActions": []
+        },
+        "no_pcb": {
+          "to": "result",
+          "addActions": ["no_pcb"]
+        }
+      }
+    },
+
     "files_finished":{
       "question":"Have you finished modifying the files?",
       "help":"This includes the schematic, PCB and BOM, all saved to server with no local edits.",
@@ -113,7 +138,8 @@
           "to":"inc_version"
         },
         "no":{
-          "to":"result"
+          "to":"result",
+          "addActions": ["finish_files"]
         }
       }
     },
@@ -211,7 +237,7 @@
     "result": {
       "type": "result",
       "title": "Your next actions",
-      "intro": "Complete the required actions below and follow the controlled engineering process for your project."
+      "intro": "Please complete the following actions (if any)."
     }
   }
 }
