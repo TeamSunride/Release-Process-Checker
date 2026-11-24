@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Guided engineering change checklist for schematic, PCB and release deliverables.">
+  <title>Engineering Change Checker</title>
+  <style>
+    :root { color-scheme: light; --ink:#172033; --muted:#596579; --line:#d9e0ea; --bg:#f4f7fb; --card:#fff; --blue:#2457c5; --blue-dark:#183f96; --green:#176b43; --amber:#8a5100; --red:#a52b2b; }
+    * { box-sizing:border-box; }
+    body { margin:0; font:16px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; color:var(--ink); background:var(--bg); }
+    a { color:var(--blue); }
+    .shell { max-width:920px; margin:0 auto; padding:28px 18px 56px; }
+    header { margin-bottom:22px; }
+    .eyebrow { color:var(--blue); font-weight:750; font-size:.78rem; letter-spacing:.09em; text-transform:uppercase; }
+    h1 { margin:.25rem 0 .4rem; line-height:1.15; font-size:clamp(1.8rem,4vw,2.5rem); }
+    h2 { margin:0 0 .45rem; font-size:1.25rem; }
+    p { margin:.35rem 0 .8rem; }
+    .muted { color:var(--muted); }
+    .panel { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:clamp(18px,3vw,28px); box-shadow:0 5px 20px #1c2b4610; }
+    .topline { display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:18px; }
+    .pill { display:inline-flex; border-radius:999px; padding:4px 10px; font-size:.82rem; font-weight:700; background:#e8eefc; color:#1e459d; }
+    .progress-track { height:7px; background:#e7ebf2; border-radius:99px; overflow:hidden; margin:12px 0 24px; }
+    .progress-bar { height:100%; width:0; background:var(--blue); transition:width .2s ease; }
+    .question { font-size:1.35rem; font-weight:750; line-height:1.3; margin:0 0 8px; }
+    .help { color:var(--muted); margin:0 0 20px; }
+    .choices { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px; }
+    button { font:inherit; cursor:pointer; }
+    .choice { border:1px solid #b9c5d7; background:white; color:var(--ink); border-radius:10px; min-height:54px; padding:12px 16px; text-align:left; font-weight:700; }
+    .choice:hover { border-color:var(--blue); background:#f2f6ff; }
+    .choice:focus-visible, .btn:focus-visible, a:focus-visible { outline:3px solid #78a3ff; outline-offset:2px; }
+    .actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:24px; }
+    .btn { border:1px solid var(--line); border-radius:9px; padding:10px 15px; background:white; color:var(--ink); font-weight:700; }
+    .btn.primary { background:var(--blue); color:white; border-color:var(--blue); }
+    .btn.primary:hover { background:var(--blue-dark); }
+    .btn:disabled { opacity:.45; cursor:not-allowed; }
+    .hidden { display:none !important; }
+    .summary-head { display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; align-items:flex-start; }
+    .status { font-weight:800; padding:5px 10px; border-radius:8px; background:#fff0d9; color:var(--amber); }
+    .status.done { background:#e0f4e9; color:var(--green); }
+    .action-list { list-style:none; padding:0; margin:18px 0; display:grid; gap:12px; }
+    .action-item { border:1px solid var(--line); border-radius:12px; padding:14px; display:flex; gap:12px; align-items:flex-start; }
+    .number { flex:0 0 28px; height:28px; border-radius:8px; display:grid; place-items:center; background:#e8eefc; color:#1e459d; font-weight:800; }
+    .action-item h3 { margin:0 0 3px; font-size:1rem; }
+    .action-item p { margin:0; color:var(--muted); font-size:.94rem; }
+    .section-label { margin:24px 0 8px; font-size:.85rem; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); font-weight:800; }
+    .empty { padding:18px; background:#f5f7fa; border:1px dashed #bdc8d8; border-radius:10px; color:var(--muted); }
+    .footnote { margin-top:18px; font-size:.85rem; color:var(--muted); }
+    .error { color:var(--red); font-weight:700; }
+    @media (prefers-reduced-motion:reduce) { * { transition:none !important; } }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <div class="eyebrow">Engineering workflow</div>
+      <h1>Engineering Change Checker</h1>
+      <p class="muted">Answer the questions that apply to your change. At the end, you'll get a focused list of next actions. Nothing is saved or sent anywhere.</p>
+    </header>
+
+    <section id="quiz" class="panel" aria-live="polite">
+      <div class="topline">
+        <span id="workflow-name" class="pill">Loading workflow…</span>
+        <span id="step-count" class="muted"></span>
+      </div>
+      <div class="progress-track" aria-hidden="true"><div id="progress" class="progress-bar"></div></div>
+      <div id="question-area">
+        <p class="question">Loading questions…</p>
+      </div>
+      <div class="actions">
+        <button id="back" class="btn" type="button">Back</button>
+        <button id="restart" class="btn" type="button">Start over</button>
+      </div>
+      <p id="load-error" class="error hidden"></p>
+    </section>
+
+    <section id="results" class="panel hidden" aria-live="polite">
+      <div class="summary-head">
+        <div>
+          <div class="eyebrow">Your result</div>
+          <h2 id="result-title">Next actions</h2>
+          <p id="result-intro" class="muted"></p>
+        </div>
+        <span id="result-status" class="status">Actions required</span>
+      </div>
+      <div id="actions-container"></div>
+      <p class="footnote">This tool is a navigation aid, not an approval record or an automated release authorisation. Follow your team's controlled procedures. The answers and result exist only in this browser tab.</p>
+      <div class="actions">
+        <button id="copy" class="btn primary" type="button">Copy action list</button>
+        <button id="edit-answers" class="btn" type="button">Review answers</button>
+        <button id="new-run" class="btn" type="button">Start new check</button>
+      </div>
+      <p id="copy-status" class="muted" role="status"></p>
+    </section>
+    <footer class="footnote">Workflow version: <span id="version">—</span> · Configure questions in <code>workflows/electronics.json</code>.</footer>
+  </main>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  let config, currentId, history = [], answers = {}, activeActions = new Set(), completed = false;
+
+  async function loadConfig() {
+    try {
+      const response = await fetch('./workflows/electronics.json', { cache: 'no-store' });
+      if (!response.ok) throw new Error(`Workflow file returned ${response.status}`);
+      config = await response.json();
+      $('workflow-name').textContent = config.title;
+      $('version').textContent = config.version;
+      start();
+    } catch (err) {
+      $('question-area').innerHTML = '<p class="error">The workflow could not be loaded.</p>';
+      $('load-error').textContent = `Check that workflows/electronics.json exists and is valid JSON. (${err.message})`;
+      $('load-error').classList.remove('hidden');
+      $('back').disabled = true;
+    }
+  }
+
+  function start() {
+    currentId = config.start;
+    history = [];
+    answers = {};
+    activeActions = new Set();
+    completed = false;
+    $('results').classList.add('hidden');
+    $('quiz').classList.remove('hidden');
+    $('load-error').classList.add('hidden');
+    renderQuestion();
+  }
+
+  function node() { return config.nodes[currentId]; }
+
+  function renderQuestion() {
+    const n = node();
+    if (!n) return showError(`Unknown question node: ${currentId}`);
+    if (n.type === 'result') return renderResults(n);
+
+    $('question-area').innerHTML = '';
+    const title = document.createElement('p');
+    title.className = 'question';
+    title.textContent = n.question;
+    $('question-area').appendChild(title);
+    if (n.help) {
+      const help = document.createElement('p');
+      help.className = 'help';
+      help.textContent = n.help;
+      $('question-area').appendChild(help);
+    }
+    const choices = document.createElement('div');
+    choices.className = 'choices';
+    n.options.forEach(option => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'choice';
+      b.textContent = option.label;
+      b.addEventListener('click', () => choose(option.value));
+      choices.appendChild(b);
+    });
+    $('question-area').appendChild(choices);
+    $('step-count').textContent = `${history.length + 1} decision${history.length === 0 ? '' : 's'} answered`;
+    $('progress').style.width = `${Math.min(95, (history.length + 1) / (history.length + 4) * 100)}%`;
+    $('back').disabled = history.length === 0;
+    $('copy-status').textContent = '';
+    const first = choices.querySelector('button');
+    if (first) first.focus({ preventScroll: true });
+  }
+
+  function choose(value) {
+    const n = node();
+    history.push({ id: currentId, value });
+    answers[currentId] = value;
+    const branch = n.next[value];
+    (branch.addActions || []).forEach(id => activeActions.add(id));
+    (branch.removeActions || []).forEach(id => activeActions.delete(id));
+    currentId = branch.to;
+    renderQuestion();
+  }
+
+  function renderResults(n) {
+    completed = true;
+    $('quiz').classList.add('hidden');
+    $('results').classList.remove('hidden');
+    $('result-title').textContent = n.title || 'Your next actions';
+    $('result-intro').textContent = n.intro || 'Use this list to complete the applicable steps.';
+    const list = $('actions-container');
+    list.innerHTML = '';
+    const actions = [...activeActions].map(id => config.actions[id]).filter(Boolean);
+    const mandatory = actions.filter(a => a.priority !== 'recommended');
+    const recommended = actions.filter(a => a.priority === 'recommended');
+    $('result-status').textContent = mandatory.length ? `${mandatory.length} required action${mandatory.length === 1 ? '' : 's'}` : 'No required actions';
+    $('result-status').classList.toggle('done', mandatory.length === 0);
+
+    function addGroup(label, items) {
+      if (!items.length) return;
+      const heading = document.createElement('div');
+      heading.className = 'section-label';
+      heading.textContent = label;
+      list.appendChild(heading);
+      const ul = document.createElement('ul');
+      ul.className = 'action-list';
+      items.forEach((a, i) => {
+        const li = document.createElement('li');
+        li.className = 'action-item';
+        const number = document.createElement('span');
+        number.className = 'number';
+        number.textContent = String(i + 1);
+        const body = document.createElement('div');
+        const h = document.createElement('h3');
+        h.textContent = a.title;
+        body.appendChild(h);
+        const p = document.createElement('p');
+        p.textContent = a.detail || '';
+        body.appendChild(p);
+        if (a.link) {
+          const link = document.createElement('a');
+          link.href = a.link;
+          link.target = '_blank';
+          link.rel = 'noopener noreferrer';
+          link.textContent = 'Open guidance';
+          link.style.display = 'inline-block';
+          link.style.marginTop = '6px';
+          body.appendChild(link);
+        }
+        li.append(number, body);
+        ul.appendChild(li);
+      });
+      list.appendChild(ul);
+    }
+    addGroup('Required next actions', mandatory);
+    addGroup('Recommended follow-ups', recommended);
+    if (!actions.length) {
+      const p = document.createElement('div');
+      p.className = 'empty';
+      p.textContent = 'No actions were added by your answers. Confirm that this path is valid for your change and follow the applicable engineering release procedure.';
+      list.appendChild(p);
+    }
+    $('progress').style.width = '100%';
+    $('step-count').textContent = 'Complete';
+  }
+
+  function showError(message) {
+    $('load-error').textContent = message;
+    $('load-error').classList.remove('hidden');
+  }
+
+  $('back').addEventListener('click', () => {
+    if (!history.length || completed) return;
+    const previous = history.pop();
+    // Recalculate actions from the beginning so changed answers cannot leave stale actions.
+    const replay = [...history];
+    answers = {};
+    activeActions = new Set();
+    currentId = config.start;
+    history = [];
+    replay.forEach(item => {
+      const n = config.nodes[item.id];
+      if (!n || !n.next[item.value]) return;
+      history.push(item);
+      answers[item.id] = item.value;
+      const branch = n.next[item.value];
+      (branch.addActions || []).forEach(id => activeActions.add(id));
+      (branch.removeActions || []).forEach(id => activeActions.delete(id));
+      currentId = branch.to;
+    });
+    currentId = previous.id;
+    renderQuestion();
+  });
+
+  $('restart').addEventListener('click', start);
+  $('new-run').addEventListener('click', start);
+  $('edit-answers').addEventListener('click', () => {
+    completed = false;
+    $('results').classList.add('hidden');
+    $('quiz').classList.remove('hidden');
+    renderQuestion();
+  });
+  $('copy').addEventListener('click', async () => {
+    const actions = [...activeActions].map(id => config.actions[id]).filter(Boolean);
+    const lines = [
+      `${config.title} — ${config.version}`,
+      `Result: ${actions.length ? 'Actions identified' : 'No actions identified'}`,
+      '',
+      ...actions.map((a, i) => `${i + 1}. ${a.title}\n   ${a.detail || ''}${a.link ? '\n   Guidance: ' + a.link : ''}`)
+    ];
+    try {
+      await navigator.clipboard.writeText(lines.join('\n'));
+      $('copy-status').textContent = 'Action list copied to clipboard.';
+    } catch {
+      const ta = document.createElement('textarea');
+      ta.value = lines.join('\n');
+      document.body.appendChild(ta);
+      ta.select();
+      const ok = document.execCommand('copy');
+      ta.remove();
+      $('copy-status').textContent = ok ? 'Action list copied to clipboard.' : 'Copy was blocked by the browser. Select and copy the action list manually.';
+    }
+  });
+
+  loadConfig();
+})();
+</script>
+</body>
+</html>
