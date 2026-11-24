@@ -5,15 +5,33 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Guided engineering change checklist for schematic, PCB and release deliverables.">
   <title>Engineering Change Checker</title>
+  <script>
+    (() => {
+      const saved = localStorage.getItem('theme');
+      const dark = saved ? saved === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+    })();
+  </script>
   <link rel="stylesheet" href="style.css">
 
 </head>
 <body>
   <main class="shell">
     <header>
-      <!-- <div class="eyebrow">Project Sunride - Avionics Release Workflow</div> -->
-      <h1>Project Sunride - Avionics Release Workflow</h1>
-      <p class="muted">Follow the steps to ensure your avionics project is released properly.</p>
+      <div class="header-content">
+        <div class="header-copy">
+          <!-- <div class="eyebrow">Project Sunride - Avionics Release Workflow</div> -->
+          <h1>Project Sunride - Avionics Release Workflow</h1>
+          <p class="muted">Follow the steps to ensure your avionics project is released properly.</p>
+        </div>
+        <div class="header-tools">
+          <img id="brand-logo" class="brand-logo" src="assets/sunride-logo-red-black.png" alt="Sunride">
+          <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Switch to dark mode" aria-pressed="false">
+            <span class="theme-icon" aria-hidden="true"></span>
+            <span id="theme-label">Dark</span>
+          </button>
+        </div>
+      </div>
     </header>
 
     <section id="quiz" class="panel" aria-live="polite">

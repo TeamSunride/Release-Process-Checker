@@ -3,6 +3,28 @@
   const $ = (id) => document.getElementById(id);
   let config, currentId, history = [], answers = {}, activeActions = new Set(), completed = false;
 
+  const themeToggle = $('theme-toggle');
+  const themeLabel = $('theme-label');
+  const brandLogo = $('brand-logo');
+
+  function syncThemeControls() {
+    const dark = document.documentElement.dataset.theme === 'dark';
+    themeToggle.setAttribute('aria-pressed', String(dark));
+    themeToggle.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+    themeLabel.textContent = dark ? 'Light' : 'Dark';
+    brandLogo.src = dark
+      ? 'assets/sunride-logo-red-white.png'
+      : 'assets/sunride-logo-red-black.png';
+  }
+
+  themeToggle.addEventListener('click', () => {
+    const dark = document.documentElement.dataset.theme !== 'dark';
+    document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+    localStorage.setItem('theme', dark ? 'dark' : 'light');
+    syncThemeControls();
+  });
+  syncThemeControls();
+
   async function loadConfig() {
     try {
       const response = await fetch('./workflows/electronics.json', { cache: 'no-store' });
